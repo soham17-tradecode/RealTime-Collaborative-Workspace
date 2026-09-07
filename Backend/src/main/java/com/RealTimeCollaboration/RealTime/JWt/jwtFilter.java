@@ -50,10 +50,7 @@ public class jwtFilter extends OncePerRequestFilter {
 //            return;
 //        }
         String path = request.getRequestURI();
-        if (request.getMethod().equals("OPTIONS")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+
 
         if (
                 path.equals("/refresh") ||

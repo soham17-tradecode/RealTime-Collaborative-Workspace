@@ -14,7 +14,7 @@ public class corsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://armed-wine-gathering-melissa.trycloudflare.com") //changes
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
