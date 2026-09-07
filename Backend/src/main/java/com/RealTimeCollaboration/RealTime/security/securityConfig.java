@@ -33,7 +33,7 @@ public class securityConfig {
     private userDetailsService userDetailsService;
 
     @Autowired
-    private jwtFilter jwtFilter;
+    private jwt Filter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
