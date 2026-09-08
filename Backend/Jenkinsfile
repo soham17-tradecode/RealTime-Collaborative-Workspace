@@ -40,6 +40,31 @@ pipeline {
             }
         }
 
+        stage('Check Node')
+        {
+           steps{
+               bat 'node --version'
+               bat 'npm --version'
+           }
+
+        }
+
+        stage('Frontend build')
+        {
+            steps{
+               dir('Frontend')
+               {
+                 bat 'npm install'
+                 bat 'npm run build'
+               }
+
+
+            }
+
+
+
+        }
+
         stage('Docker Build') {
             steps {
                 dir('Backend') {
