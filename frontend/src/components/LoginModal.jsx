@@ -2,128 +2,80 @@ import { useState } from "react";
 import "./Model.css";
 
 function LoginModal({ onClose }) {
+  const [username, setUsername] = useState("");
 
-    const [username, setUsername] =
-        useState("");
+  const [password, setPassword] = useState("");
 
-    const [password, setPassword] =
-        useState("");
+  const [message, setMessage] = useState("");
 
-    const [message, setMessage] =
-        useState("");
+  const login = async (e) => {
+    e.preventDefault();
 
-    const login = async (e) => {
+    console.log("LOGIN FUNCTION CALLED");
 
-        e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        credentials: "include",
 
-        console.log("LOGIN FUNCTION CALLED");
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-        try {
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-            const response =
-                await fetch(
-                    "http://localhost:8080/login",
-                    {
-                        method: "POST",
-                        credentials : "include",
-                
+      if (response.ok) {
+        // setMessage("username not match")
+        // alert("logged in success");
+        onClose();
+        window.location.reload();
+      } else {
+        setMessage("username not matched");
+      }
+    } catch (error) {
+      console.error(error);
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+      setMessage("Server Error");
+    }
+  };
 
-                        body: JSON.stringify({
-                            username,
-                            password
-                        })
-                    }
-                );
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <h2>Login</h2>
 
-           
+        <form onSubmit={login}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-            if (response.ok) {
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-                // setMessage("username not match")
-                // alert("logged in success");
-                onClose();
-                window.location.reload();
+          <button type="submit" className="modal-btn">
+            Login
+          </button>
+        </form>
 
-            } 
-            else{
-                setMessage("username not matched");
-            }
+        <button className="close-btn" onClick={onClose}>
+          Close
+        </button>
 
-        } catch (error) {
-
-            console.error(error);
-
-            setMessage(
-                "Server Error"
-            );
-        }
-    };
-
-    return (
-
-        <div className="modal">
-
-            <div className="modal-content">
-
-                <h2>
-                    Login
-                </h2>
-
-              <form onSubmit={login}>
-
-                    <input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) =>
-                            setUsername(
-                                e.target.value
-                            )
-                        }
-                    />
-
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) =>
-                            setPassword(
-                                e.target.value
-                            )
-                        }
-                    />
-
-                    <button
-                        type="submit"
-                        className="modal-btn"
-                        
-                    
-                    >
-                        Login
-                    </button>
-
-                </form>
-
-                <button
-                    className="close-btn"
-                    onClick={onClose}
-                >
-                    Close
-                </button>
-
-                <p className="error-message">
-                    {message}
-                </p>
-
-            </div>
-
-        </div>
-    );
+        <p className="error-message">{message}</p>
+      </div>
+    </div>
+  );
 }
 
 export default LoginModal;
