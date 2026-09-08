@@ -57,6 +57,19 @@ services:
     networks:
       - virtual_network
 
+  frontend:
+    build:
+      context: ../Frontend
+    image: realtime-frontend:latest
+    container_name: react_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks:
+      - virtual_network
+
 
 
 

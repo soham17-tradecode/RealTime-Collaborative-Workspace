@@ -76,7 +76,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('Backend') {
-                    bat 'docker compose --env-file C:\\ProgramData\\Jenkins\\realtime.env up -d'
+                    bat 'docker compose --env-file C:\\ProgramData\\Jenkins\\realtime.env up -d --build'
                 }
             }
         }
