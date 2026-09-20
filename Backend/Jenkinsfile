@@ -54,7 +54,7 @@ pipeline {
             steps{
                dir('Frontend')
                {
-                 bat 'npm install'
+                 bat 'npm ci'
                  bat 'npm run build'
                }
 
@@ -100,4 +100,3 @@ pipeline {
         }
     }
 }
-//ok
