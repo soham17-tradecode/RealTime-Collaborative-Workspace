@@ -10,4 +10,6 @@ import java.util.List;
 public interface chatMessageRepo extends JpaRepository<charMessageEntity,Long> {
    List<charMessageEntity>findByRoomCode(String roomCode);
 
+   void deleteByRoomCode(String roomCode);
+
 }

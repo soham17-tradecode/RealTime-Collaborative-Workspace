@@ -68,7 +68,10 @@ function Navbar({ user }) {
                   <div className="dropdown-menu">
                     <div className="dropdown-user">👤 {user}</div>
                     <div className="dropdown-divider"></div>
-                    <button className="dropdown-item">My Rooms</button>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => { setShowDropdown(false); navigate("/my-rooms"); }}
+                    >My Rooms</button>
                     <button
                       className="dropdown-item logout-item"
                       onClick={logout}

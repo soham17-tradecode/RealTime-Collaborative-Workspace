@@ -63,7 +63,7 @@ public class chatController {
     {
         String username = authentication.getName();
         redisTemplate.leavesRoom(joinRoomDTO.getRoomCode(),username);
-      return ResponseEntity.ok("room leaved");
+      return ResponseEntity.ok("Left workspace. Room and membership are preserved for resuming.");
     }
 
 

@@ -11,4 +11,6 @@ public interface fileMetaDataRepo extends JpaRepository<fileMetaData,Long> {
     fileMetaData findByFileId(String fileId);
 
     List<fileMetaData> findByRoomCode(String roomCode);
+
+    void deleteByRoomCode(String roomCode);
 }

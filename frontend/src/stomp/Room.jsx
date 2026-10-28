@@ -136,20 +136,49 @@ function Room() {
   }, [roomCode, validated]);
 
   useEffect(() => {
-    api
-      .get(`/roomCode/${roomCode}/validated`)
-      .then(() => {
-        setValidated(true);
-      })
-      .catch((error) => {
-        if (error.response?.status === 404) {
-          navigate("/room-not-found");
-        }
+    let cancelled = false;
 
-        if (error.response?.status === 403) {
-          navigate("/access-denied");
+    const validateRoom = async () => {
+      try {
+        console.log("Validating room:", roomCode);
+
+        const response = await api.get(`/roomCode/${roomCode}/validated`);
+
+        console.log(
+          "Room validation response:",
+          response.status,
+          response.data,
+        );
+
+        if (!cancelled) {
+          setValidated(true);
         }
-      });
+      } catch (error) {
+        console.error("Room validation failed:", {
+          roomCode,
+          status: error.response?.status,
+          data: error.response?.data,
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+        });
+
+        if (cancelled) return;
+
+        if (error.response?.status === 404) {
+          navigate("/room-not-found", { replace: true });
+        } else if (error.response?.status === 403) {
+          navigate("/access-denied", { replace: true });
+        }
+      }
+    };
+
+    if (roomCode) {
+      validateRoom();
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [roomCode, navigate]);
 
   useEffect(() => {

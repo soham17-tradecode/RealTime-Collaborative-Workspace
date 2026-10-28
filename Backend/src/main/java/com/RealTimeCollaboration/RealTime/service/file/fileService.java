@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -320,6 +321,44 @@ public class fileService {
         Files.move(source, target);
 
         return targetFile;
+    }
+
+    /** Permanently removes this room's workspace directory and uploaded-file artifacts. */
+    public void deleteRoomFiles(String roomCode, List<fileMetaData> metadata) throws IOException {
+        Path workspaceRoot = Paths.get(WORKSPACE).toAbsolutePath().normalize();
+        Path roomDirectory = workspaceRoot.resolve(roomCode).normalize();
+        if (!roomDirectory.startsWith(workspaceRoot)) {
+            throw new IllegalArgumentException("Invalid room code");
+        }
+        if (Files.exists(roomDirectory)) {
+            try (var paths = Files.walk(roomDirectory)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+
+        Path uploadsRoot = Paths.get(Final_dir).toAbsolutePath().normalize();
+        for (fileMetaData item : metadata) {
+            if (item.getStoragePath() != null && !item.getStoragePath().isBlank()) {
+                Path stored = Paths.get(item.getStoragePath()).toAbsolutePath().normalize();
+                if (stored.startsWith(uploadsRoot)) {
+                    Files.deleteIfExists(stored);
+                }
+            }
+            if (item.getFileId() != null && !item.getFileId().isBlank()) {
+                Path tempDirectory = Paths.get(Temp_dir).toAbsolutePath().normalize()
+                        .resolve(item.getFileId()).normalize();
+                Path tempRoot = Paths.get(Temp_dir).toAbsolutePath().normalize();
+                if (tempDirectory.startsWith(tempRoot) && Files.exists(tempDirectory)) {
+                    try (var paths = Files.walk(tempDirectory)) {
+                        for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                            Files.deleteIfExists(path);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private String generateCopyName(Path room, String fileName) {

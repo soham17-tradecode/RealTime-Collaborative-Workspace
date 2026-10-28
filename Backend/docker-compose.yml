@@ -1,23 +1,18 @@
-version: "3.8"
-
 services:
-
   postgres:
     image: postgres:16
     container_name: postgres_db
-
     restart: always
     environment:
       POSTGRES_DB: RealApp
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Backend/.env}
     ports:
       - "5433:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-     - virtual_network
+      - virtual_network
 
   redis:
     image: redis:7
@@ -30,9 +25,10 @@ services:
     networks:
       - virtual_network
 
-
   backend:
-#    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: realtime-backend:latest
     container_name: spring_app
     restart: always
@@ -42,24 +38,21 @@ services:
     ports:
       - "8080:8080"
     volumes:
-
       - uploads_data:/app/uploads
-
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RealApp
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      AI_API_KEY: ${AI_API_KEY}
-
-
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      AI_API_KEY: ${AI_API_KEY:-}
     networks:
       - virtual_network
 
   frontend:
     build:
       context: ../Frontend
+      dockerfile: Dockerfile
     image: realtime-frontend:latest
     container_name: react_frontend
     restart: always
@@ -70,35 +63,11 @@ services:
     networks:
       - virtual_network
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 networks:
   virtual_network:
     driver: bridge
-
 
 volumes:
   postgres_data:
   redis_data:
   uploads_data:
-
-
-
-
-

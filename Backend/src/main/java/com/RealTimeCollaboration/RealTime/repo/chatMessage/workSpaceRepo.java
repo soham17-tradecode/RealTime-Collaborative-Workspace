@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface workSpaceRepo extends JpaRepository<workSpaceActivityEntity,Long> {
     List<workSpaceActivityEntity> findByRoomCodeOrderByCreatedAtDesc(String roomCode);
+
+    void deleteByRoomCode(String roomCode);
 }
