@@ -337,3 +337,51 @@
     height: 260px;
   }
 }
+
+
+/* Workspace download controls */
+.download-all-btn {
+  min-width: 38px;
+  height: 30px;
+  padding: 0 7px;
+  border: 1px solid #4a4a4a;
+  border-radius: 6px;
+  background: transparent;
+  color: #cccccc;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.download-all-btn:hover,
+.file-download-btn:hover {
+  background: #37373d;
+  color: #ffffff;
+}
+
+.download-all-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.explorer-file .file-download-btn {
+  display: none;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #cccccc;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.explorer-file:hover .file-download-btn,
+.explorer-file.active .file-download-btn,
+.explorer-file:focus-within .file-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

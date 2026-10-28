@@ -21,6 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.security.auth.x500.X500Principal;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Principal;
@@ -124,6 +128,45 @@ public class fileController {
                 .body(resource);
 
 
+    }
+
+    /** Download one source file from the room workspace. */
+    @GetMapping("/room/{roomCode}/workspace/{filename}/download")
+    public ResponseEntity<byte[]> downloadWorkspaceFile(
+            @PathVariable String roomCode,
+            @PathVariable String filename
+    ) throws IOException {
+        String content = fileService.openFile(roomCode, filename);
+        String safeName = filename.replace("\r", "").replace("\n", "").replace("\"", "");
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + safeName + "\"")
+                .body(content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    /** Download every regular file in the room workspace as a ZIP archive. */
+    @GetMapping("/room/{roomCode}/workspace/download-zip")
+    public ResponseEntity<byte[]> downloadWorkspaceZip(@PathVariable String roomCode) throws IOException {
+        List<String> fileNames = fileService.listFiles(roomCode);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        try (ZipOutputStream zip = new ZipOutputStream(bytes, java.nio.charset.StandardCharsets.UTF_8)) {
+            for (String fileName : fileNames) {
+                // Workspace files are flat; reject names that could create ZIP paths.
+                if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("\\") || fileName.equals(".") || fileName.equals("..")) {
+                    continue;
+                }
+                zip.putNextEntry(new ZipEntry(fileName));
+                zip.write(fileService.openFile(roomCode, fileName).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                zip.closeEntry();
+            }
+        }
+
+        String safeRoomCode = roomCode.replaceAll("[^A-Za-z0-9_-]", "_");
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"workspace-" + safeRoomCode + ".zip\"")
+                .body(bytes.toByteArray());
     }
 
     @GetMapping("/room/{roomCode}/files")

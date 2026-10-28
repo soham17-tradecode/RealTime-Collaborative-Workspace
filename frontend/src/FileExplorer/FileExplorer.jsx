@@ -6,6 +6,7 @@ import { renameFile } from "../Api/editorApi";
 import { deleteFile } from "../Api/editorApi";
 import { copyFile } from "../Api/editorApi";
 import { moveFile } from "../Api/editorApi";
+import { downloadWorkspaceFile, downloadWorkspaceZip } from "../Api/editorApi";
 import { connectFileSocket, disconnectFileSocket } from "../stomp/FileSocket";
 
 export default function FileExplorer({ roomCode, selectedFile, onFileSelect }) {
@@ -223,6 +224,38 @@ clipboard = {
     }
   };
 
+  const triggerBrowserDownload = (blob, fileName) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadFile = async (fileName) => {
+    try {
+      const response = await downloadWorkspaceFile(roomCode, fileName);
+      triggerBrowserDownload(response.data, fileName);
+      setContextMenu((prev) => ({ ...prev, visible: false }));
+    } catch (error) {
+      console.error("Failed to download workspace file", error);
+      window.alert(`Could not download ${fileName}. Please try again.`);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    try {
+      const response = await downloadWorkspaceZip(roomCode);
+      triggerBrowserDownload(response.data, `workspace-${roomCode}.zip`);
+    } catch (error) {
+      console.error("Failed to download workspace ZIP", error);
+      window.alert("Could not download the workspace ZIP. Please try again.");
+    }
+  };
+
   const handleCreateFile = async (fileName) => {
     console.log("STEP 1");
 
@@ -267,8 +300,20 @@ clipboard = {
           </span>
 
           <div className="explorer-actions">
-            <button className="new-file-btn" onClick={() => setShowModal(true)}>
+            <button className="new-file-btn" title="Create file" onClick={() => setShowModal(true)}>
               +
+            </button>
+
+            <button
+              className="download-all-btn"
+              title="Download all workspace files as ZIP"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadZip();
+              }}
+              disabled={files.length === 0}
+            >
+              ZIP
             </button>
 
             <button
@@ -384,6 +429,21 @@ clipboard = {
                   ) : (
                     <span className="file-name">{fileName}</span>
                   )}
+
+                  {editingFile !== fileName && (
+                    <button
+                      type="button"
+                      className="file-download-btn"
+                      title={`Download ${fileName}`}
+                      aria-label={`Download ${fileName}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownloadFile(fileName);
+                      }}
+                    >
+                      ↓
+                    </button>
+                  )}
                 </div>
               ))
             )}
@@ -422,6 +482,13 @@ clipboard = {
 
           <div className="context-item" onClick={handleCut}>
             ✂ Cut
+          </div>
+
+          <div
+            className="context-item"
+            onClick={() => handleDownloadFile(contextMenu.file)}
+          >
+            ⬇ Download
           </div>
 
           <div

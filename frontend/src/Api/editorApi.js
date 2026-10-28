@@ -56,3 +56,19 @@ export const moveFile = (roomCode, sourceFile, targetFile) => {
     targetFile,
   });
 };
+
+// Download one workspace file using the browser's standard download flow.
+export const downloadWorkspaceFile = (roomCode, fileName) => {
+  return api.get(
+    `/room/${encodeURIComponent(roomCode)}/workspace/${encodeURIComponent(fileName)}/download`,
+    { responseType: "blob" },
+  );
+};
+
+// Download all workspace files as a ZIP archive.
+export const downloadWorkspaceZip = (roomCode) => {
+  return api.get(
+    `/room/${encodeURIComponent(roomCode)}/workspace/download-zip`,
+    { responseType: "blob" },
+  );
+};
